@@ -12,15 +12,23 @@ class GameEngine:
         self.current_card = self.deck.draw()
         self.next_card = None
         self.score = 0
+        self.streak = 0
+
         self.status_msg = "Will the next card be HIGHER or LOWER?"
         self.status_color = (220, 220, 220)
 
         btn_w, btn_h = 140, 48
         self.btn_higher = pygame.Rect(
-            width // 2 - btn_w - 20, height - 90, btn_w, btn_h
+            width // 2 - btn_w - 20,
+            height - 90,
+            btn_w,
+            btn_h
         )
         self.btn_lower = pygame.Rect(
-            width // 2 + 20, height - 90, btn_w, btn_h
+            width // 2 + 20,
+            height - 90,
+            btn_w,
+            btn_h
         )
 
         self.font_title = pygame.font.SysFont(None, 40)
@@ -31,8 +39,7 @@ class GameEngine:
         """Draws next card and evaluates prediction."""
         self.next_card = self.deck.draw()
 
-        # Compare cards using their numeric ranks instead of rank strings.
-        # This ensures the correct hierarchy:
+        # Compare numeric ranks so that:
         # 2 < 3 < ... < 10 < J < Q < K < A
         if guess == "HIGHER":
             correct = (
@@ -46,17 +53,38 @@ class GameEngine:
             )
 
         if correct:
-            self.score += 1
+            # Increase consecutive win streak
+            self.streak += 1
+
+            # Determine points based on the current streak
+            if self.streak >= 5:
+                multiplier = 3
+            elif self.streak >= 3:
+                multiplier = 2
+            else:
+                multiplier = 1
+
+            points_earned = multiplier
+            self.score += points_earned
+
             self.status_msg = (
                 f"CORRECT! {self.next_card.rank_str} "
-                f"vs {self.current_card.rank_str}"
+                f"vs {self.current_card.rank_str} | "
+                f"Streak: {self.streak} | "
+                f"+{points_earned} points"
             )
             self.status_color = (80, 220, 80)
+
         else:
+            # Incorrect guess breaks the consecutive win streak
+            self.streak = 0
+
             self.score = max(0, self.score - 1)
+
             self.status_msg = (
                 f"WRONG! {self.next_card.rank_str} "
-                f"vs {self.current_card.rank_str}"
+                f"vs {self.current_card.rank_str} | "
+                f"Streak reset | -1 point"
             )
             self.status_color = (235, 75, 75)
 
@@ -94,6 +122,16 @@ class GameEngine:
             (255, 220, 80)
         )
         screen.blit(score_surf, (30, 30))
+
+        streak_surf = self.font_medium.render(
+            f"Streak: {self.streak}",
+            True,
+            (255, 220, 80)
+        )
+        screen.blit(
+            streak_surf,
+            (30, 65)
+        )
 
         rem_surf = self.font_small.render(
             f"Deck: {self.deck.remaining} left",
