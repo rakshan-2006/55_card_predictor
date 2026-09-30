@@ -39,54 +39,64 @@ class GameEngine:
         """Draws next card and evaluates prediction."""
         self.next_card = self.deck.draw()
 
-        # Compare numeric ranks so that:
-        # 2 < 3 < ... < 10 < J < Q < K < A
-        if guess == "HIGHER":
-            correct = (
-                self.next_card.numeric_rank
-                > self.current_card.numeric_rank
-            )
+        # Check for a tie before evaluating HIGHER or LOWER.
+        if (
+            self.next_card.numeric_rank
+            == self.current_card.numeric_rank
+        ):
+            # A tie does not affect score or streak.
+            self.status_msg = "PUSH / TIE! Rank matched."
+            self.status_color = (255, 220, 0)
+
         else:
-            correct = (
-                self.next_card.numeric_rank
-                < self.current_card.numeric_rank
-            )
-
-        if correct:
-            # Increase consecutive win streak
-            self.streak += 1
-
-            # Determine points based on the current streak
-            if self.streak >= 5:
-                multiplier = 3
-            elif self.streak >= 3:
-                multiplier = 2
+            # Compare numeric ranks so that:
+            # 2 < 3 < ... < 10 < J < Q < K < A
+            if guess == "HIGHER":
+                correct = (
+                    self.next_card.numeric_rank
+                    > self.current_card.numeric_rank
+                )
             else:
-                multiplier = 1
+                correct = (
+                    self.next_card.numeric_rank
+                    < self.current_card.numeric_rank
+                )
 
-            points_earned = multiplier
-            self.score += points_earned
+            if correct:
+                # Increase consecutive win streak
+                self.streak += 1
 
-            self.status_msg = (
-                f"CORRECT! {self.next_card.rank_str} "
-                f"vs {self.current_card.rank_str} | "
-                f"Streak: {self.streak} | "
-                f"+{points_earned} points"
-            )
-            self.status_color = (80, 220, 80)
+                # Determine points based on the current streak
+                if self.streak >= 5:
+                    multiplier = 3
+                elif self.streak >= 3:
+                    multiplier = 2
+                else:
+                    multiplier = 1
 
-        else:
-            # Incorrect guess breaks the consecutive win streak
-            self.streak = 0
+                points_earned = multiplier
+                self.score += points_earned
 
-            self.score = max(0, self.score - 1)
+                self.status_msg = (
+                    f"CORRECT! {self.next_card.rank_str} "
+                    f"vs {self.current_card.rank_str} | "
+                    f"Streak: {self.streak} | "
+                    f"+{points_earned} points"
+                )
+                self.status_color = (80, 220, 80)
 
-            self.status_msg = (
-                f"WRONG! {self.next_card.rank_str} "
-                f"vs {self.current_card.rank_str} | "
-                f"Streak reset | -1 point"
-            )
-            self.status_color = (235, 75, 75)
+            else:
+                # Incorrect guess breaks the consecutive win streak
+                self.streak = 0
+
+                self.score = max(0, self.score - 1)
+
+                self.status_msg = (
+                    f"WRONG! {self.next_card.rank_str} "
+                    f"vs {self.current_card.rank_str} | "
+                    f"Streak reset | -1 point"
+                )
+                self.status_color = (235, 75, 75)
 
         self.current_card = self.next_card
 
