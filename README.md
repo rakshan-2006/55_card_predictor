@@ -1,6 +1,7 @@
 # High-Low Card Predictor Repair Lab
 
 My ChatGPT chat - https://chatgpt.com/share/6abd47ea-f84c-83e8-8795-bbb5db1ac9ef
+
 This project is a card prediction game using **Pygame**. It introduces students to deck state management, lexicographical vs. numerical evaluation, probability assessment, and UI button interaction within an object-oriented codebase.
 ---
 
